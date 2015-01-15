@@ -15,12 +15,16 @@ export NAME=${2}
 export DISTRO=${3}
 export ARCH=${4}
 
-# invalidate dependent
-reprepro -V -b $REPO_DIR/ubuntu removefilter $DISTRO "Package (% * ), Architecture (==$ARCH), (Depends (% *$PKG[, ]* ) | Depends (% *$PKG ) )"
+export APTLY_CMD='aptly -config=/buildbot-ros/aptly.conf'
 
-# invalidate this package
-reprepro -V -b $REPO_DIR/ubuntu removefilter $DISTRO "Package (==$PKG), Architecture (==$ARCH)"
+source /buildbot-ros/conf/aptly-distributions.conf
 
-reprepro -V -b $REPO_DIR/ubuntu deleteunreferenced
-
-reprepro -V -b $REPO_DIR/ubuntu includedeb $DISTRO $BUILD_DIR/binarydebs/$NAME
+# TODO: invalidate dependent (if desired)
+# remove old version of this package
+${APTLY_CMD} repo remove building $PKG
+# add new package to repo
+${APTLY_CMD} repo add building $BUILD_DIR/binarydebs/$NAME
+# update the published repository files
+for distro in ${APTLY_DISTRIBUTIONS[@]}; do
+  ${APTLY_CMD} publish update ${distro}
+done

@@ -2,6 +2,9 @@
 
 export MASTER=/buildbot-ros
 export KEYS=${MASTER}/keys
+export APTLY_CMD='aptly -config=/buildbot-ros/aptly.conf'
+
+source /buildbot-ros/conf/aptly-distributions.conf
 
 # Set up SSH key, if present (used for accessing private source repos).
 if [ -e "${KEYS}/ssh" ]
@@ -18,13 +21,17 @@ then
   export SIGNING_KEY_ID=$(gpg --with-colon ${KEYS}/signing/public.key | grep sub | cut -d: -f5)
 fi
 
-# Initialize apt repo, if necessary.
-if [ ! -e "${REPO_DIR}/ubuntu" ]
+# Initialize apt repo, if necessary
+if ! ${APTLY_CMD} repo list | grep "building"
 then
-  mkdir -p ${REPO_DIR}/ubuntu/conf
-  python -m em -F ${MASTER}/conf/distros.py -o ${REPO_DIR}/ubuntu/conf/distributions \
-    ${MASTER}/templates/apt-distributions.em
-  reprepro -b ${REPO_DIR}/ubuntu export
+  # create aptly repo
+  ${APTLY_CMD} repo create -comment=${REPO_NAME} building
+
+  # publish aptly repo
+  for distro in ${APTLY_DISTRIBUTIONS[@]}; do
+    ${APTLY_CMD} -distribution ${distro} publish repo building
+  done
+  ln -sfv public /building/ubuntu
 fi
 
 # Start the Nginx webserver (port 80).

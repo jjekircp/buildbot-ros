@@ -1,15 +1,20 @@
 FROM ubuntu:trusty
-MAINTAINER Mike Purvis
+MAINTAINER Jonathan Jekir
 
 ENV DEBIAN_FRONTEND noninteractive
-ENV BUILDBOT_CREATED dec_3_2014
+ENV BUILDBOT_CREATED jan_15_2015
 
 # Install build, webserver, apt management stuff.
+RUN sh -c 'echo deb http://repo.aptly.info/ squeeze main >/etc/apt/sources.list.d/aptly.list'
+
+RUN gpg --keyserver keys.gnupg.net --recv-keys 2A194991
+RUN gpg -a --export 2A194991 | apt-key add -
+
 RUN apt-get update
 RUN apt-get install -q -y --no-install-recommends \
   python-pip python-dev python-empy build-essential git ssh \
-  reprepro cowbuilder debootstrap devscripts git-buildpackage \
-  fakeroot debhelper debmirror nginx openssl
+  cowbuilder debootstrap devscripts git-buildpackage \
+  fakeroot debhelper debmirror nginx openssl aptly
 
 # Install buildbot itself.
 RUN pip install rosdistro buildbot buildbot-slave
