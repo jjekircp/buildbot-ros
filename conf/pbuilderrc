@@ -2,3 +2,11 @@
 # to correctly build for a distro other than that of the host (for
 # example, to build precise debs on a trusty buildslave).
 DISTRIBUTION="$DIST"
+
+# ccache
+sudo mkdir -p /var/cache/pbuilder/ccache
+sudo chmod a+w /var/cache/pbuilder/ccache
+export CCACHE_DIR="/var/cache/pbuilder/ccache"
+export PATH="/usr/lib/ccache:${PATH}"
+EXTRAPACKAGES=ccache
+BINDMOUNTS="${CCACHE_DIR}"

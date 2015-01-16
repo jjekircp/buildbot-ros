@@ -14,7 +14,7 @@ RUN apt-get update
 RUN apt-get install -q -y --no-install-recommends \
   python-pip python-dev python-empy build-essential git ssh \
   cowbuilder debootstrap devscripts git-buildpackage \
-  fakeroot debhelper debmirror nginx openssl aptly
+  fakeroot debhelper debmirror nginx openssl aptly ccache
 
 # Install buildbot itself.
 RUN pip install rosdistro buildbot buildbot-slave
