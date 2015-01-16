@@ -112,7 +112,18 @@ exit
         print('cowbuilder already exists for %s-%s' % (distro, arch))
 
     # update
-    print('updating cowbuilder')
+        command = ['cowbuilder', '--login',
+                   '--save-after-login',
+                   '--distribution', distro,
+                   '--architecture', arch,
+                   '--basepath', basepath(distro, arch)]
+        print('Executing command "%s"' % ' '.join(command))
+        cowbuilder = subprocess.Popen(command, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
+        output = cowbuilder.communicate(input="""echo "installing ccache"
+    apt-get -y install ccache
+    exit
+    """)
+
     call(['cowbuilder', '--update',
           '--distribution', distro,
           '--architecture', arch,
