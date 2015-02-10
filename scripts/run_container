@@ -25,7 +25,7 @@ fi
 if ! ${APTLY_CMD} repo list | grep "building"
 then
   # create aptly repo
-  ${APTLY_CMD} repo create -comment=${REPO_NAME} building
+  ${APTLY_CMD} repo create -comment="${REPO_NAME}" building
 
   # publish aptly repo
   for distro in ${APTLY_DISTRIBUTIONS[@]}; do
